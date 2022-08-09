@@ -21,6 +21,6 @@ push:
 	docker push mminichino/$(CONTAINER):$(MAJOR_REV).$(MINOR_REV).$(BUILD_REV)
 	git add -A .
 	git commit -m "Build version $(MAJOR_REV).$(MINOR_REV).$(BUILD_REV)"
-	git push -u origin main
+	git push -u origin master
 build:
 	docker build --force-rm=true --no-cache=true -t $(CONTAINER) -f Dockerfile .
