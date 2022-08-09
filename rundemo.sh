@@ -41,7 +41,7 @@ while true; do
                                 -p 9102:9102 \
                                 -p 4984:4984 \
                                 -p 4985:4985 \
-                                empdemo
+                                mminichino/${container}
             exit
             ;;
     --show )
