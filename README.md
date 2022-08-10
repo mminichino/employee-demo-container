@@ -1,5 +1,7 @@
 # Employee Demo Container
 
+Container to run the Sync Gateway and Couchbase Server components for the Couchbase Mobile [Employee Android Demo](https://github.com/mminichino/sgw-android-example).
+
 Run the container:
 
 ````
