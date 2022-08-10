@@ -2,6 +2,12 @@
 
 Container to run the Sync Gateway and Couchbase Server components for the Couchbase Mobile [Employee Android Demo](https://github.com/mminichino/sgw-android-example).
 
+Download the helper script:
+
+````
+curl -L -O https://github.com/mminichino/employee-demo-container/releases/download/1.0.1/rundemo.sh
+````
+
 Run the container:
 
 ````
