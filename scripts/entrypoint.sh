@@ -59,22 +59,31 @@ echo "Starting Sync Gateway"
 /opt/couchbase-sync-gateway/bin/sync_gateway --defaultLogFilePath=/demo/couchbase/logs /etc/sync_gateway/config.json &
 
 # Wait for CBS to start
+echo -n "Waiting for Couchbase Server to start ... "
 while true; do
   if /opt/couchbase/bin/couchbase-cli host-list \
   --cluster 127.0.0.1 \
   --username Administrator \
   --password "password" | \
-  grep -q "unknown pool"; then
-    break
-  else
+  grep -q "Unable to connect"; then
     sleep 1
+  else
+    break
   fi
 done
+echo "done."
 
 # Configuration section
 echo "Configuring Couchbase Cluster"
 
 # Initialize the node
+if /opt/couchbase/bin/couchbase-cli host-list \
+  --cluster 127.0.0.1 \
+  --username Administrator \
+  --password "password" | \
+  grep -q "127.0.0.1"; then
+    echo "This node already exists in the cluster"
+else
 /opt/couchbase/bin/couchbase-cli node-init \
   --cluster 127.0.0.1 \
   --username Administrator \
@@ -84,8 +93,14 @@ echo "Configuring Couchbase Cluster"
   --node-init-index-path /opt/couchbase/var/lib/couchbase/data \
   --node-init-analytics-path /opt/couchbase/var/lib/couchbase/data \
   --node-init-eventing-path /opt/couchbase/var/lib/couchbase/data
+fi
 
 # Initialize the single node cluster
+if /opt/couchbase/bin/couchbase-cli setting-cluster \
+  --cluster 127.0.0.1 \
+  --username Administrator \
+  --password "password" | \
+  grep -q 'ERROR: Cluster is not initialized'; then
 /opt/couchbase/bin/couchbase-cli cluster-init \
   --cluster 127.0.0.1 \
   --cluster-username Administrator \
@@ -99,6 +114,9 @@ echo "Configuring Couchbase Cluster"
   --cluster-name empdemo \
   --index-storage-setting default \
   --services "data,index,query"
+else
+  echo "This node is already initialized"
+fi
 
 cd /demo/couchbase/cbperf
 
@@ -112,7 +130,7 @@ while true; do
 done
 
 # Load the demo schema
-./cb_perf load --host 127.0.0.1 --count 30 --schema employee_demo --replica 0
+./cb_perf load --host 127.0.0.1 --count 30 --schema employee_demo --replica 0 --safe
 
 if [ $? -ne 0 ]; then
   echo "Schema configuration error"
@@ -120,20 +138,37 @@ if [ $? -ne 0 ]; then
 fi
 
 # Configure the Sync Gateway
+if [ ! -f /demo/couchbase/.sgwconfigured ]; then
 echo "Creating Sync Gateway database configuration"
 curl -i -s -X PUT -u Administrator:password http://127.0.0.1:4985/employees/ -H 'Content-Type: application/json' -d '{ "bucket": "employees", "num_index_replicas": 0 }'
 
 echo "Creating Sync Gateway user"
 curl -i -s -X PUT -u Administrator:password http://127.0.0.1:4985/employees/_user/demouser -H 'Content-Type: application/json' -d '{ "password": "CouchBase321", "admin_channels": ["*"], "disabled": false }'
+else
+echo "Sync Gateway already configured."
+fi
 
+CHECK_MAX=30
+CHECK_COUNT=0
+while true; do
 CHECK_CODE=$(curl -s -X GET -u Administrator:password http://127.0.0.1:4985/employees/_config -o /dev/null -w "%{http_code}")
 
 if [ "$CHECK_CODE" -ne 200 ]; then
-  echo "Sync Gateway configuration error"
-  exit 1
+  if [ $CHECK_COUNT -lt $CHECK_MAX ]; then
+    CHECK_COUNT=$((CHECK_COUNT + 1))
+    sleep 1
+    continue
+  else
+    echo "Sync Gateway configuration error"
+    exit 1
+  fi
+else
+  break
 fi
+done
 
 cd /demo/couchbase
+touch /demo/couchbase/.sgwconfigured
 
 # Configuration complete
 

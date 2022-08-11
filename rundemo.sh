@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 #
 YES=0
 container=empdemo
+image=mminichino/${container}
 
 function print_usage {
 if [ -n "$PRINT_USAGE" ]; then
@@ -28,7 +29,8 @@ while true; do
   case "$1" in
     --run )
             shift
-            [ -n "$(docker ps -q -a -f name=${container}${n})" ] && docker rm ${container}${n}
+            echo "Starting container ${container} from image ${image}"
+            [ -n "$(docker ps -q -a -f name=${container})" ] && docker rm ${container}
             docker run -d --name empdemo \
                                 -p 8091:8091 \
                                 -p 8092:8092 \
@@ -41,7 +43,7 @@ while true; do
                                 -p 9102:9102 \
                                 -p 4984:4984 \
                                 -p 4985:4985 \
-                                mminichino/${container}
+                                ${image}
             exit
             ;;
     --show )
@@ -64,20 +66,29 @@ while true; do
             docker logs -f ${container}
             exit
             ;;
+    --local )
+            shift
+            image=${container}
+            ;;
     --stop )
             shift
             if [ "$YES" -eq 0 ]; then
-              echo "Container will stop. Continue? [y/n]: "
+              echo -n "Container will stop. Continue? [y/n]: "
               read ANSWER
               [ "$ANSWER" = "n" -o "$ANSWER" = "N" ] && exit
             fi
             docker stop ${container}
             exit
             ;;
+    --start )
+            shift
+            docker start ${container}
+            exit
+            ;;
     --rm )
             shift
             if [ "$YES" -eq 0 ]; then
-              echo "WARNING: removing the container can not be undone. Continue? [y/n]: "
+              echo -n "WARNING: removing the container can not be undone. Continue? [y/n]: "
               read ANSWER
               [ "$ANSWER" = "n" -o "$ANSWER" = "N" ] && exit
             fi
@@ -90,11 +101,11 @@ while true; do
     --rmi )
             shift
             if [ "$YES" -eq 0 ]; then
-              echo "Remove container images? [y/n]: "
+              echo -n "Remove container images? [y/n]: "
               read ANSWER
               [ "$ANSWER" = "n" -o "$ANSWER" = "N" ] && exit
             fi
-            for image in $(docker images mminichino/${container} | tail -n +2 | awk '{print $3}'); do docker rmi $image ; done
+            for image in $(docker images ${image} | tail -n +2 | awk '{print $3}'); do docker rmi $image ; done
             exit
             ;;
     --yes )
