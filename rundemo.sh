@@ -58,7 +58,7 @@ while true; do
             ;;
     --log )
             shift
-            docker logs -n 50 ${container}
+            docker logs -n 200 ${container}
             exit
             ;;
     --tail )
