@@ -140,10 +140,10 @@ fi
 # Configure the Sync Gateway
 if [ ! -f /demo/couchbase/.sgwconfigured ]; then
   echo "Creating Sync Gateway database configuration"
-  ./sgwcli.py database create -h 127.0.0.1 -b employees -n employees
+  ./sgwcli database create -h 127.0.0.1 -b employees -n employees
 
   echo "Waiting for the database to become available."
-  ./sgwcli.py database wait -h 127.0.0.1 -n employees
+  ./sgwcli database wait -h 127.0.0.1 -n employees
 
   if [ $? -ne 0 ]; then
     echo "Sync Gateway database creation error"
@@ -151,10 +151,10 @@ if [ ! -f /demo/couchbase/.sgwconfigured ]; then
   fi
 
   echo "Creating Sync Gateway user"
-  ./sgwcli.py user map -h 127.0.0.1 -d 127.0.0.1 -f store_id -k employees -n employees
+  ./sgwcli user map -h 127.0.0.1 -d 127.0.0.1 -f store_id -k employees -n employees
 
   echo "Adding sync function to database"
-  ./sgwcli.py database sync -h 127.0.0.1 -n employees -f /etc/sync_gateway/employee-demo.js
+  ./sgwcli database sync -h 127.0.0.1 -n employees -f /etc/sync_gateway/employee-demo.js
 
   if [ $? -ne 0 ]; then
     echo "Sync Gateway configuration error"

@@ -43,12 +43,12 @@ while true; do
                                 -p 9102:9102 \
                                 -p 4984:4984 \
                                 -p 4985:4985 \
-                                ${image}
+                                ${image}:latest
             exit
             ;;
     --show )
             shift
-            docker ps --filter name=${container}
+            docker ps -a --filter name=${container}
             exit
             ;;
     --shell )
