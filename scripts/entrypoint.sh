@@ -139,33 +139,30 @@ fi
 
 # Configure the Sync Gateway
 if [ ! -f /demo/couchbase/.sgwconfigured ]; then
-echo "Creating Sync Gateway database configuration"
-curl -i -s -X PUT -u Administrator:password http://127.0.0.1:4985/employees/ -H 'Content-Type: application/json' -d '{ "bucket": "employees", "num_index_replicas": 0 }'
+  echo "Creating Sync Gateway database configuration"
+  ./sgwcli.py database create -h 127.0.0.1 -b employees -n employees
 
-echo "Creating Sync Gateway user"
-curl -i -s -X PUT -u Administrator:password http://127.0.0.1:4985/employees/_user/demouser -H 'Content-Type: application/json' -d '{ "password": "CouchBase321", "admin_channels": ["*"], "disabled": false }'
-else
-echo "Sync Gateway already configured."
-fi
+  echo "Waiting for the database to become available."
+  ./sgwcli.py database wait -h 127.0.0.1 -n employees
 
-CHECK_MAX=30
-CHECK_COUNT=0
-while true; do
-CHECK_CODE=$(curl -s -X GET -u Administrator:password http://127.0.0.1:4985/employees/_config -o /dev/null -w "%{http_code}")
+  if [ $? -ne 0 ]; then
+    echo "Sync Gateway database creation error"
+    exit 1
+  fi
 
-if [ "$CHECK_CODE" -ne 200 ]; then
-  if [ $CHECK_COUNT -lt $CHECK_MAX ]; then
-    CHECK_COUNT=$((CHECK_COUNT + 1))
-    sleep 1
-    continue
-  else
+  echo "Creating Sync Gateway user"
+  ./sgwcli.py user map -h 127.0.0.1 -d 127.0.0.1 -f store_id -k employees -n employees
+
+  echo "Adding sync function to database"
+  ./sgwcli.py database sync -h 127.0.0.1 -n employees -f /etc/sync_gateway/employee-demo.js
+
+  if [ $? -ne 0 ]; then
     echo "Sync Gateway configuration error"
     exit 1
   fi
 else
-  break
+  echo "Sync Gateway already configured."
 fi
-done
 
 cd /demo/couchbase
 touch /demo/couchbase/.sgwconfigured

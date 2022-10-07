@@ -58,12 +58,13 @@ RUN chmod 755 /opt/couchbase-sync-gateway/service/sync_gateway_service_install.s
 RUN chmod 755 /opt/couchbase-sync-gateway/examples
 RUN useradd sync_gateway -u 1002 -g couchbase
 COPY config/sync_gateway.json /etc/sync_gateway/config.json
+COPY config/employee-demo.js /etc/sync_gateway/employee-demo.js
 
 # Entry point script to configure the environment on container start
 COPY scripts/entrypoint.sh /demo/couchbase/bin
 
 # Add CBPerf utility that will be used to install the demo schema
-RUN git clone https://github.com/mminichino/cbperf /demo/couchbase/cbperf
+RUN git clone -b Version_2.0 https://github.com/mminichino/cbperf /demo/couchbase/cbperf
 WORKDIR /demo/couchbase/cbperf
 RUN ./setup.sh -y
 
