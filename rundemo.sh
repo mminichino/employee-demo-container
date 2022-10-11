@@ -1,5 +1,17 @@
 #!/bin/bash
 #
+PRINT_USAGE="Usage: $0 <options>
+             --run   Run container
+             --show  Show container
+             --shell Get shell in running container
+             --log   Show container log
+             --tail  Tail container log
+             --local Use local container image
+             --stop  Stop container
+             --start Start container
+             --rm    Remove container
+             --rmi   Remove container image
+             --yes   Assume yes to questions"
 YES=0
 container=empdemo
 image=mminichino/${container}
