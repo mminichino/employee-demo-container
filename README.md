@@ -5,7 +5,7 @@ Container to run the Sync Gateway and Couchbase Server components for the Couchb
 Download the helper script:
 
 ````
-curl -L -O https://github.com/mminichino/employee-demo-container/releases/download/1.0.1/rundemo.sh
+curl -L -O https://github.com/mminichino/employee-demo-container/releases/download/2.0.4/rundemo.sh
 ````
 
 Run the container:
