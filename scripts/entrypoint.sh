@@ -124,7 +124,7 @@ cd /demo/couchbase/cbperf
 set +e
 while true; do
   sleep 1
-  ./cb_perf list --host 127.0.0.1 --ping --test 2>&1
+  ./cb_perf list --host 127.0.0.1 --wait 2>&1
   [ $? -ne 0 ] && continue
   break
 done
@@ -136,6 +136,8 @@ if [ $? -ne 0 ]; then
   echo "Schema configuration error"
   exit 1
 fi
+
+cd /demo/couchbase/sgwcli
 
 # Configure the Sync Gateway
 if [ ! -f /demo/couchbase/.sgwconfigured ]; then

@@ -11,7 +11,8 @@ PRINT_USAGE="Usage: $0 <options>
              --start Start container
              --rm    Remove container
              --rmi   Remove container image
-             --yes   Assume yes to questions"
+             --yes   Assume yes to questions
+             --prune Prune unused docker image data"
 YES=0
 container=empdemo
 image=mminichino/${container}
@@ -45,12 +46,20 @@ while true; do
             [ -n "$(docker ps -q -a -f name=${container})" ] && docker rm ${container}
             docker run -d --name empdemo \
                                 -p 8091:8091 \
+                                -p 18091:18091 \
                                 -p 8092:8092 \
+                                -p 18092:18092 \
                                 -p 8093:8093 \
+                                -p 18093:18093 \
                                 -p 8094:8094 \
+                                -p 18094:18094 \
                                 -p 8095:8095 \
+                                -p 18095:18095 \
                                 -p 8096:8096 \
+                                -p 18096:18096 \
                                 -p 8097:8097 \
+                                -p 18097:18097 \
+                                -p 11207:11207 \
                                 -p 11210:11210 \
                                 -p 9102:9102 \
                                 -p 4984:4984 \
@@ -123,6 +132,12 @@ while true; do
     --yes )
             shift
             YES=1
+            ;;
+    --prune )
+            shift
+            docker image prune -f
+            docker builder prune -a -f
+            exit
             ;;
     * )
             print_usage
