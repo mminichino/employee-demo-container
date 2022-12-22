@@ -14,7 +14,7 @@ push:
 	$(eval MAJOR_REV := $(shell cat $(MAJOR_REV_FILE)))
 	$(eval MINOR_REV := $(shell cat $(MINOR_REV_FILE)))
 	$(eval BUILD_REV := $(shell cat $(BUILD_REV_FILE)))
-	docker build --force-rm=true --no-cache=true -t $(CONTAINER) -f Dockerfile .
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(CONTAINER) -f Dockerfile .
 	docker image tag $(CONTAINER):latest mminichino/$(CONTAINER):latest
 	docker image tag $(CONTAINER):latest mminichino/$(CONTAINER):$(MAJOR_REV).$(MINOR_REV).$(BUILD_REV)
 	docker push mminichino/$(CONTAINER):latest
