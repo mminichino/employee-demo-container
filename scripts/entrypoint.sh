@@ -178,6 +178,12 @@ while true; do
   sleep 1
 done
 
+echo "Starting auth microservice"
+export NVM_DIR=/usr/local/nvm
+. $NVM_DIR/nvm.sh
+cd /demo/couchbase/microservice
+pm2 start service.js
+
 echo "The following output is now a tail of sg_info.log:"
 tail -f /demo/couchbase/logs/sg_info.log &
 childPID=$!

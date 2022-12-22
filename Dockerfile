@@ -1,8 +1,18 @@
 FROM ubuntu:focal as base
 
 # Install required OS packages
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -q -y runit numactl tzdata lsof lshw bzip2 jq git vim netcat sysstat apt-utils ca-certificates gnupg lsb-release net-tools python3.9 python3.9-dev python3-pip python3-setuptools cmake build-essential curl sudo software-properties-common make pkg-config libssl-dev
+RUN apt-get install -q -y runit numactl tzdata lsof lshw bzip2 jq git vim netcat sysstat apt-utils ca-certificates gnupg lsb-release net-tools python3.9 python3.9-dev python3-pip python3-setuptools cmake build-essential curl sudo software-properties-common make pkg-config libssl-dev
+
+# Install Node.js
+RUN mkdir /usr/local/nvm
+ENV NVM_DIR=/usr/local/nvm
+RUN curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install 19.3.0 \
+    && nvm install-latest-npm
 
 # Get Couchbase release package and Sync Gateway package
 RUN SGW_ARCH=$(dpkg --print-architecture) \
@@ -67,16 +77,21 @@ COPY scripts/entrypoint.sh /demo/couchbase/bin
 # Add CBPerf and SGWCLI utilities that will be used to setup the demo
 RUN git clone -b Version_2.0 https://github.com/mminichino/cbperf /demo/couchbase/cbperf
 RUN git clone https://github.com/mminichino/sgwcli /demo/couchbase/sgwcli
+RUN git clone https://github.com/mminichino/demo-auth-service /demo/couchbase/microservice
 WORKDIR /demo/couchbase/cbperf
 RUN ./setup.sh -y
 WORKDIR /demo/couchbase/sgwcli
 RUN ./setup.sh -y
+WORKDIR /demo/couchbase/microservice
+RUN . $NVM_DIR/nvm.sh \
+    && npm install \
+    && npm install pm2 -g
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /demo/couchbase
-EXPOSE 4984 4985 4986 8091 8092 8093 8094 8095 8096 11207 11210 11211 18091 18092 18093 18094 18095 18096
+EXPOSE 4984 4985 4986 8091 8092 8093 8094 8095 8096 11207 11210 11211 18091 18092 18093 18094 18095 18096 8080
 VOLUME /opt/couchbase/var
 
 # Start the container
