@@ -12,7 +12,8 @@ PRINT_USAGE="Usage: $0 <options>
              --rm    Remove container
              --rmi   Remove container image
              --yes   Assume yes to questions
-             --prune Prune unused docker image data"
+             --prune Prune unused docker image data
+             --ip    Show usable IP addresses to access the container"
 YES=0
 container=empdemo
 image=mminichino/${container}
