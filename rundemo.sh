@@ -146,7 +146,7 @@ while true; do
               read ANSWER
               [ "$ANSWER" = "n" -o "$ANSWER" = "N" ] && exit
             fi
-            for image in $(docker images ${image} | tail -n +2 | awk '{print $3}'); do docker rmi $image ; done
+            for image in $(docker images ${image} | tail -n +2 | awk '{print $3}'); do docker rmi -f $image ; done
             exit
             ;;
     --yes )
