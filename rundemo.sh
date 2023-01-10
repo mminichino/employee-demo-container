@@ -32,6 +32,25 @@ function err_exit {
    exit 1
 }
 
+function get_ip_address {
+  which ifconfig >/dev/null 2>&1
+  [ $? -ne 0 ] && err_exit "ifconfig is required for this feature"
+  which netstat >/dev/null 2>&1
+  [ $? -ne 0 ] && err_exit "netstat is required for this feature"
+
+  for addr in $(netstat -rn | grep ^default | awk '{print $2}')
+  do
+    prefix=$(echo "$addr" | sed -n -e 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*$/\1/p')
+    for inet in $(ifconfig -a | grep "inet " | awk '{print $2}')
+    do
+      check=$(echo "$inet" | sed -n -e 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*$/\1/p')
+      if [ "$check" = "$prefix" ]; then
+         echo "$inet"
+      fi
+    done
+  done | sort -n | uniq
+}
+
 docker ps >/dev/null 2>&1
 if [ $? -ne 0 ]; then
    echo "Can not run docker."
@@ -138,6 +157,11 @@ while true; do
             shift
             docker image prune -f
             docker builder prune -a -f
+            exit
+            ;;
+    --ip )
+            shift
+            get_ip_address
             exit
             ;;
     * )
