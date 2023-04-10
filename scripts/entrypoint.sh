@@ -124,13 +124,13 @@ cd /demo/couchbase/cbperf
 set +e
 while true; do
   sleep 1
-  ./cb_perf list --host 127.0.0.1 --wait 2>&1
+  bin/cb_perf list --host 127.0.0.1 --wait 2>&1
   [ $? -ne 0 ] && continue
   break
 done
 
 # Load the demo schema
-./cb_perf load --host 127.0.0.1 --count 30 --schema employee_demo --replica 0 --safe
+bin/cb_perf load --host 127.0.0.1 --count 30 --schema employee_demo --replica 0 --safe
 
 if [ $? -ne 0 ]; then
   echo "Schema configuration error"
@@ -184,6 +184,7 @@ export NVM_DIR=/usr/local/nvm
 cd /demo/couchbase/microservice
 pm2 start service.js
 
+echo "Container is now ready"
 echo "The following output is now a tail of sg_info.log:"
 tail -f /demo/couchbase/logs/sg_info.log &
 childPID=$!

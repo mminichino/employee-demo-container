@@ -16,9 +16,9 @@ RUN curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh 
 
 # Get Couchbase release package and Sync Gateway package
 RUN SGW_ARCH=$(dpkg --print-architecture) \
-    && curl -s -o /var/tmp/couchbase-server-enterprise.deb "https://packages.couchbase.com/releases/7.1.3/couchbase-server-enterprise_7.1.3-linux_${SGW_ARCH}.deb"
+    && curl -s -o /var/tmp/couchbase-server-enterprise.deb "https://packages.couchbase.com/releases/7.1.4/couchbase-server-enterprise_7.1.4-linux_${SGW_ARCH}.deb"
 RUN SGW_ARCH=$(uname -m) \
-    && curl -s -o /var/tmp/couchbase-sync-gateway-enterprise.deb "http://packages.couchbase.com/releases/couchbase-sync-gateway/3.0.4/couchbase-sync-gateway-enterprise_3.0.4_${SGW_ARCH}.deb"
+    && curl -s -o /var/tmp/couchbase-sync-gateway-enterprise.deb "http://packages.couchbase.com/releases/couchbase-sync-gateway/3.0.5/couchbase-sync-gateway-enterprise_3.0.5_${SGW_ARCH}.deb"
 
 # Prepare Python environment
 RUN pip3 install --upgrade pip setuptools wheel
@@ -75,7 +75,7 @@ COPY config/employee-demo.js /etc/sync_gateway/employee-demo.js
 COPY scripts/entrypoint.sh /demo/couchbase/bin
 
 # Add CBPerf and SGWCLI utilities that will be used to setup the demo
-RUN git clone -b Version_2.0 https://github.com/mminichino/cbperf /demo/couchbase/cbperf
+RUN git clone https://github.com/mminichino/cbperf /demo/couchbase/cbperf
 RUN git clone https://github.com/mminichino/sgwcli /demo/couchbase/sgwcli
 RUN git clone https://github.com/mminichino/demo-auth-service /demo/couchbase/microservice
 WORKDIR /demo/couchbase/cbperf
